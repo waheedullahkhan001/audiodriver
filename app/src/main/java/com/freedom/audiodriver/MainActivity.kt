@@ -1,8 +1,10 @@
 package com.freedom.audiodriver
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -56,11 +58,24 @@ fun Main(modifier: Modifier = Modifier) {
     ) {
         val context = LocalContext.current
         val permissionState = rememberPermissionState(
-            android.Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO
         )
         var running by remember { mutableStateOf(false) }
 
         if (permissionState.status.isGranted) {
+            Button(
+                onClick = {
+                    val isServiceRunning = MainService.isServiceRunningInForeground(
+                        context,
+                        MainService::class.java
+                    )
+                    val status = if (isServiceRunning) "Running" else "Not running"
+                    val toast = Toast.makeText(context, status, Toast.LENGTH_SHORT)
+                    toast.show()
+                }
+            ) {
+                Text("Status")
+            }
             Button(
                 onClick = {
                     val intent = Intent(context, MainService::class.java).apply {

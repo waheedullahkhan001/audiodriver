@@ -1,19 +1,34 @@
 package com.freedom.audiodriver.service
 
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.freedom.audiodriver.R
 
+
 class MainService : Service() {
 
     companion object {
         const val CHANNEL_ID = "UpdatesChannel"
+
+        fun isServiceRunningInForeground(context: Context, serviceClass: Class<*>): Boolean {
+            val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+                if (serviceClass.name == service.service.className) {
+                    if (service.foreground) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
