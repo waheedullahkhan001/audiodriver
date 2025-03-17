@@ -1,4 +1,7 @@
 # Audio Driver (Audio Recorder)
+- Jetpack Compose
+- Accompanist Permissions
+- Foreground Service
 
 ## Intro
 
