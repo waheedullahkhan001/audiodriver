@@ -5,7 +5,7 @@
 
 ## Intro
 
-This is supposed to allow recording from their microphone continuously in background.
+This is supposed to allow recording from microphone continuously in background.
 
 The recorder will run as Foreground service only showing a notification saying that it is updating with IMPORTANCE_LOW.
 
