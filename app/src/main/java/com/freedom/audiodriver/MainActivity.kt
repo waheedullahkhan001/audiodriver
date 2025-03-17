@@ -46,7 +46,7 @@ fun Main(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        val cameraPermissionState = rememberPermissionState(
+        val permissionState = rememberPermissionState(
             android.Manifest.permission.RECORD_AUDIO
         )
 
