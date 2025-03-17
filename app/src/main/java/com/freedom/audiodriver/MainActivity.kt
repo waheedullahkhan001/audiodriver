@@ -52,7 +52,7 @@ fun Main(modifier: Modifier = Modifier) {
 
         if (cameraPermissionState.status.isGranted) {
             Text(
-                "Camera permission Granted",
+                "Microphone permission Granted",
                 textAlign = TextAlign.Center
             )
         } else {
