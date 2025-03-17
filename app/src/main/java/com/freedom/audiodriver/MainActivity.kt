@@ -1,6 +1,7 @@
 package com.freedom.audiodriver
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import com.freedom.audiodriver.service.MainService
 import com.freedom.audiodriver.ui.theme.AudioDriverTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -61,34 +61,35 @@ fun Main(modifier: Modifier = Modifier) {
         var running by remember { mutableStateOf(false) }
 
         if (permissionState.status.isGranted) {
-            if (running) {
-                Button(
-                    onClick = {
-                        ContextCompat.startForegroundService(
-                            context,
-                            Intent(context, MainService::class.java).apply {
-                                action = MainService.Actions.STOP.name
-                            }
-                        )
-                        running = false
+            Button(
+                onClick = {
+                    val intent = Intent(context, MainService::class.java).apply {
+                        action = MainService.Actions.START.name
                     }
-                ) {
-                    Text("Stop")
-                }
-            } else {
-                Button(
-                    onClick = {
-                        ContextCompat.startForegroundService(
-                            context,
-                            Intent(context, MainService::class.java).apply {
-                                action = MainService.Actions.START.name
-                            }
-                        )
-                        running = true
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(intent)
+                    } else {
+                        context.startService(intent)
                     }
-                ) {
-                    Text("Start")
+                    running = true
                 }
+            ) {
+                Text("Start")
+            }
+            Button(
+                onClick = {
+                    val intent = Intent(context, MainService::class.java).apply {
+                        action = MainService.Actions.STOP.name
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(intent)
+                    } else {
+                        context.startService(intent)
+                    }
+                    running = false
+                }
+            ) {
+                Text("Stop")
             }
         } else {
             val textToShow = if (permissionState.status.shouldShowRationale) {
