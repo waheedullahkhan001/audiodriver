@@ -60,7 +60,6 @@ fun Main(modifier: Modifier = Modifier) {
         val permissionState = rememberPermissionState(
             Manifest.permission.RECORD_AUDIO
         )
-        var running by remember { mutableStateOf(false) }
 
         if (permissionState.status.isGranted) {
             Button(
@@ -86,7 +85,6 @@ fun Main(modifier: Modifier = Modifier) {
                     } else {
                         context.startService(intent)
                     }
-                    running = true
                 }
             ) {
                 Text("Start")
@@ -101,7 +99,6 @@ fun Main(modifier: Modifier = Modifier) {
                     } else {
                         context.startService(intent)
                     }
-                    running = false
                 }
             ) {
                 Text("Stop")
