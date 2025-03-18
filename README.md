@@ -3,6 +3,8 @@
 - Accompanist Permissions
 - Foreground Service
 
+> :warning: Requires API 29+ / Android 10+
+
 ## Intro
 
 This is supposed to allow recording from microphone continuously in background.
