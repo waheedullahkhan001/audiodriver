@@ -9,8 +9,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.AudioFormat
-import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
@@ -22,7 +20,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileOutputStream
 
 
 class MainService : Service() {
@@ -30,7 +27,6 @@ class MainService : Service() {
     val sampleRate: Int = 48000
     val bitRate: Int = 64000
 
-    var audioRecord: AudioRecord? = null
     var isRecording: Boolean = false
 
     companion object {
