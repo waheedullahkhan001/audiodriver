@@ -51,7 +51,6 @@ class MainService : Service() {
     private fun start() {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Pending Update")
-            .setContentText("Waiting for network...")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
 
