@@ -3,7 +3,6 @@
 - Accompanist Permissions
 - Foreground Service
 
-> :warning: Requires API 29+ / Android 10+
 
 ## Intro
 

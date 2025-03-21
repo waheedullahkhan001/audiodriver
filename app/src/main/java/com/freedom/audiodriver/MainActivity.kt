@@ -60,19 +60,6 @@ fun Main(modifier: Modifier = Modifier) {
         if (permissionState.status.isGranted) {
             Button(
                 onClick = {
-                    val isServiceRunning = MainService.isServiceRunningInForeground(
-                        context,
-                        MainService::class.java
-                    )
-                    val status = if (isServiceRunning) "Running" else "Not running"
-                    val toast = Toast.makeText(context, status, Toast.LENGTH_SHORT)
-                    toast.show()
-                }
-            ) {
-                Text("Status")
-            }
-            Button(
-                onClick = {
                     val intent = Intent(context, MainService::class.java).apply {
                         action = MainService.Actions.START.name
                     }
@@ -98,6 +85,19 @@ fun Main(modifier: Modifier = Modifier) {
                 }
             ) {
                 Text("Stop")
+            }
+            Button(
+                onClick = {
+                    val isServiceRunning = MainService.isServiceRunningInForeground(
+                        context,
+                        MainService::class.java
+                    )
+                    val status = if (isServiceRunning) "Running" else "Not running"
+                    val toast = Toast.makeText(context, status, Toast.LENGTH_SHORT)
+                    toast.show()
+                }
+            ) {
+                Text("Status")
             }
         } else {
             val textToShow = if (permissionState.status.shouldShowRationale) {

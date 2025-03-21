@@ -79,34 +79,40 @@ class MainService : Service() {
             return
         }
 
-        if (
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.S
-        ) {
-            stopSelf()
-            return
-        }
-
         isRecording = true
         CoroutineScope(Dispatchers.IO).launch {
             while (isRecording) {
-                val mediaRecorder = MediaRecorder(this@MainService).apply {
-                    setAudioSource(MediaRecorder.AudioSource.MIC)
-                    setOutputFormat(MediaRecorder.OutputFormat.OGG) // Requires API 29+
-                    setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
-                    setAudioSamplingRate(sampleRate)
-                    setAudioEncodingBitRate(bitRate)
-                    setMaxDuration(600000) // 10 minutes in milliseconds
+                val fileName: String
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS
+                )
 
-                    val downloadsDir = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS
-                    )
-                    val fileName = "audio-${System.currentTimeMillis()}.ogg"
-                    val outputFile = File(downloadsDir, fileName)
-                    setOutputFile(outputFile.absolutePath)
+                val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    MediaRecorder(this@MainService).apply {
+                        setOutputFormat(MediaRecorder.OutputFormat.OGG)
+                        setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
 
-                    prepare()
-                    start()
+                        fileName = "audio-${System.currentTimeMillis()}.ogg"
+                    }
+                } else {
+                    MediaRecorder().apply {
+                        setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                        setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+
+                        fileName = "audio-${System.currentTimeMillis()}.m4a"
+                    }
                 }
+
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+                mediaRecorder.setAudioSamplingRate(sampleRate)
+                mediaRecorder.setAudioEncodingBitRate(bitRate)
+                mediaRecorder.setMaxDuration(600000) // 10 minutes in milliseconds
+
+                val outputFile = File(downloadsDir, fileName)
+                mediaRecorder.setOutputFile(outputFile.absolutePath)
+
+                mediaRecorder.prepare()
+                mediaRecorder.start()
 
                 // Wait for 10 minutes or until stopped
                 var elapsedTime = 0
