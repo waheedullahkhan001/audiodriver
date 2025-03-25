@@ -105,8 +105,7 @@ fun Main(modifier: Modifier = Modifier) {
                         ),
                         modifier = Modifier.size(width = 240.dp, height = 120.dp),
                         border = BorderStroke(
-                            2.dp,
-                            if (isRunning) MaterialTheme.colorScheme.primary
+                            2.dp, if (isRunning) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.primary.copy(alpha = 0f)
                         ),
                     ) {
@@ -148,8 +147,7 @@ fun Main(modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(
-                        enabled = !isRunning,
-                        modifier = Modifier.fillMaxWidth(), onClick = {
+                        enabled = !isRunning, modifier = Modifier.fillMaxWidth(), onClick = {
                             val intent = Intent(context, MainService::class.java).apply {
                                 action = MainService.Actions.START.name
                             }
@@ -170,8 +168,7 @@ fun Main(modifier: Modifier = Modifier) {
                         Text("Start")
                     }
                     Button(
-                        enabled = isRunning,
-                        modifier = Modifier.fillMaxWidth(), onClick = {
+                        enabled = isRunning, modifier = Modifier.fillMaxWidth(), onClick = {
                             val intent = Intent(context, MainService::class.java).apply {
                                 action = MainService.Actions.STOP.name
                             }
@@ -196,7 +193,8 @@ fun Main(modifier: Modifier = Modifier) {
                 val textToShow = if (permissionState.status.shouldShowRationale) {
                     "The microphone is important for this app. Please grant the permission."
                 } else {
-                    "Microphone permission required for this feature to be available. " + "Please grant the permission"
+                    "Microphone permission required for this feature to be available. " +
+                            "Please grant the permission"
                 }
                 Text(
                     textToShow, textAlign = TextAlign.Center
@@ -215,12 +213,10 @@ fun Main(modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.background.copy(alpha = 0.3f),
                     )
                     // This intercepts all touch events
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { /* consume click */ }
-                    ),
-                contentAlignment = Alignment.Center
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = { /* consume click */ }), contentAlignment = Alignment.Center
             ) {
                 PacmanIndicator(
                     color = MaterialTheme.colorScheme.primary,
