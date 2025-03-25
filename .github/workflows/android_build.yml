@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    runs-on : ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       - run: chmod +x ./gradlew
 
       - name: Build
-        run : ./gradlew build
+        run: ./gradlew build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -38,7 +38,20 @@ jobs:
       - name: Generate timestamp
         id: timestamp
         run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-  
+
+      # Get commit messages since last tag
+      - name: Get Changes Since Last Tag
+        id: get_changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git fetch --tags
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          if [ "$LAST_TAG" = "none" ]; then
+            echo "changelog=$(git log --pretty=format:'%h - %s (%an)' -10)" >> $GITHUB_OUTPUT
+          else
+            echo "changelog=$(git log $LAST_TAG..HEAD --pretty=format:'%h - %s (%an)')" >> $GITHUB_OUTPUT
+          fi
+
       # Create GitHub Release (only on push to main, not on PR)
       - name: Create GitHub Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -69,16 +82,3 @@ jobs:
             - Use at your own risk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Get commit messages since last tag
-      - name: Get Changes Since Last Tag
-        id: get_changes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          git fetch --tags
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
-          if [ "$LAST_TAG" = "none" ]; then
-            echo "changelog=$(git log --pretty=format:'%h - %s (%an)' -10)" >> $GITHUB_OUTPUT
-          else
-            echo "changelog=$(git log $LAST_TAG..HEAD --pretty=format:'%h - %s (%an)')" >> $GITHUB_OUTPUT
-          fi
