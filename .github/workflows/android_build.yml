@@ -67,8 +67,8 @@ jobs:
             
             This is an automatically generated alpha release from the latest commit.
             
-            ### Changes in this build:
-            - Latest changes from: ${{ github.sha }}
+            ### About this build:
+            - Latest changes: ${{ github.sha }}
             - Build timestamp: ${{ steps.timestamp.outputs.timestamp }}
             
             ### Commits since last release:
