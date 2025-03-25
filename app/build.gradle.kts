@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.jetpack.loading)
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
