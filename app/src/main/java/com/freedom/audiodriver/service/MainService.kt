@@ -62,7 +62,7 @@ class MainService : Service() {
             Actions.START.name -> start()
             Actions.STOP.name -> stop()
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     private fun start() {
@@ -83,22 +83,9 @@ class MainService : Service() {
                 return
             }
 
-            val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(this).apply {
-                    setAudioSource(MediaRecorder.AudioSource.MIC)
-                    setOutputFormat(MediaRecorder.OutputFormat.OGG)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
-                }
-            } else {
-                MediaRecorder().apply {
-                    setAudioSource(MediaRecorder.AudioSource.MIC)
-                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                }
-            }
-
             isRecording = true
             CoroutineScope(Dispatchers.IO).launch {
+                var mediaRecorder: MediaRecorder? = null
                 try {
                     val downloadsDir = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS
@@ -111,14 +98,29 @@ class MainService : Service() {
                         if (!audioRecDir.mkdirs()) {
                             Log.e("MainService", "Failed to create directory")
                             stopSelf()
+                            return@launch
                         }
                     }
 
-                    mediaRecorder.setAudioSamplingRate(sampleRate)
-                    mediaRecorder.setAudioEncodingBitRate(bitRate)
-                    mediaRecorder.setMaxDuration(duration * 1000)
-
                     while (isRecording) {
+                        mediaRecorder?.release()
+                        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            MediaRecorder(this@MainService)
+                        } else {
+                            MediaRecorder()
+                        }
+
+                        mediaRecorder.apply {
+                            setAudioSource(MediaRecorder.AudioSource.MIC)
+                            setOutputFormat(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                                MediaRecorder.OutputFormat.OGG else MediaRecorder.OutputFormat.MPEG_4)
+                            setAudioEncoder(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                                MediaRecorder.AudioEncoder.OPUS else MediaRecorder.AudioEncoder.AAC)
+                            setAudioSamplingRate(sampleRate)
+                            setAudioEncodingBitRate(bitRate)
+                            setMaxDuration(duration * 1000)
+                        }
+
                         fileName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             "audio-${System.currentTimeMillis()}.ogg"
                         } else {
@@ -126,39 +128,36 @@ class MainService : Service() {
                         }
 
                         val outputFile = File(audioRecDir, fileName)
+                        Log.d("MainService", "Starting recording to ${outputFile.absolutePath}")
                         mediaRecorder.setOutputFile(outputFile.absolutePath)
-
                         mediaRecorder.prepare()
                         mediaRecorder.start()
 
-                        // Wait for 10 minutes or until stopped
                         var elapsedTime = 0
                         while (isRecording && elapsedTime < duration * 1000) {
                             Thread.sleep(1000)
                             elapsedTime += 1000
                         }
 
-                        mediaRecorder.apply {
-                            stop()
-                            reset()
+                        if (isRecording) {
+                            mediaRecorder.stop()
+                            Log.d("MainService", "Recording completed normally")
+                        } else {
+                            mediaRecorder.stop()
+                            Log.d("MainService", "Recording stopped by user")
+                            break
                         }
-
-                        if (!isRecording) break
                     }
                 } catch (e: Exception) {
                     Log.e("MainService", "Error while recording -> ${Log.getStackTraceString(e)}")
                 } finally {
-                    mediaRecorder.release()
+                    mediaRecorder?.release()
                     stopSelf()
                 }
             }
         } catch (e: Exception) {
-            Log.e(
-                "MainService",
-                "Error while initializing -> ${Log.getStackTraceString(e)}"
-            )
+            Log.e("MainService", "Error while initializing -> ${Log.getStackTraceString(e)}")
             stopSelf()
-            return
         }
     }
 
