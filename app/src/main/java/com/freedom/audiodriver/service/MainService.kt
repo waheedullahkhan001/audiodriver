@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import com.freedom.audiodriver.MainActivity
 import com.freedom.audiodriver.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,11 +28,11 @@ import java.io.File
 class MainService : Service() {
 
     private val recDirName: String = "AudioRec"
-    val sampleRate: Int = 48000
-    val bitRate: Int = 64000
-    val duration: Int = 600 // 10 minutes in seconds
+    private val sampleRate: Int = 48000
+    private val bitRate: Int = 64000
+    private val duration: Int = 600 // 10 minutes in seconds
 
-    var isRecording: Boolean = false
+    private var isRecording: Boolean = false
 
     companion object {
         const val CHANNEL_ID = "UpdatesChannel"
@@ -67,9 +69,20 @@ class MainService : Service() {
 
     private fun start() {
         try {
+            val notificationIntent = Intent(this, MainActivity::class.java)
+            val pendingIntentFlags =
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            val pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                notificationIntent,
+                pendingIntentFlags
+            )
+
             val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Pending Update")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentIntent(pendingIntent)
                 .build()
 
             startForeground(1, notification)
